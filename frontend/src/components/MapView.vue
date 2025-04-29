@@ -137,19 +137,43 @@ function loadKakaoMap() {
   }
 }
 
+// onMounted(() => {
+//   if (window.kakao && window.kakao.maps) {
+//     window.kakao.maps.load(() => {
+//       loadKakaoMap();
+//     });
+//   } else {
+//     const script = document.querySelector('script[src*="dapi.kakao.com"]');
+//     if (script) {
+//       script.addEventListener("load", () => {
+//         loadKakaoMap();
+//       });
+//     } else {
+//       console.error("Kakao SDK 스크립트를 찾을 수 없습니다.");
+//     }
+//   }
+// });
 onMounted(() => {
-  if (window.kakao && window.kakao.maps) {
-    window.kakao.maps.load(() => {
-      loadKakaoMap();
-    });
-  } else {
-    const script = document.querySelector('script[src*="dapi.kakao.com"]');
-    if (script) {
-      script.addEventListener("load", () => {
+  const kakaoMapScriptId = "kakao-map-script";
+  const existingScript = document.getElementById(kakaoMapScriptId);
+
+  if (!existingScript) {
+    const script = document.createElement("script");
+    script.id = kakaoMapScriptId;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${
+      import.meta.env.VITE_KAKAO_MAP_APP_KEY
+    }&autoload=false&libraries=services`;
+    script.onload = () => {
+      window.kakao.maps.load(() => {
         loadKakaoMap();
       });
-    } else {
-      console.error("Kakao SDK 스크립트를 찾을 수 없습니다.");
+    };
+    document.head.appendChild(script);
+  } else {
+    if (window.kakao && window.kakao.maps) {
+      window.kakao.maps.load(() => {
+        loadKakaoMap();
+      });
     }
   }
 });
